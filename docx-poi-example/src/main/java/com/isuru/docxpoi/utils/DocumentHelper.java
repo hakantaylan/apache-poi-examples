@@ -68,7 +68,7 @@ public class DocumentHelper {
                 SalaryRecord.builder().month("Jun 2020").amount(String.valueOf(1500.70)).build()
         );
 
-//        replaceSalaryTable(doc, salaryRecordList);
+        replaceSalaryTable(doc, salaryRecordList);
 
 //        savePdf("src/main/resources/employee-report.pdf", doc);
 

@@ -31,8 +31,10 @@ public class DocumentController {
             ByteArrayOutputStream out = documentHelper.createDocument(id);
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"employee-report.pdf\"")
+//                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .contentType(MediaType.parseMediaType("application/pdf"))
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"employee-report.pdf\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"employee-report.pdf\"")
                     .body(out.toByteArray());
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
