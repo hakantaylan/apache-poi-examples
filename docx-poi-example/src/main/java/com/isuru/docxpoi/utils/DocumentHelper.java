@@ -4,18 +4,14 @@ import com.isuru.docxpoi.dto.EmployeeDetails;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import lombok.SneakyThrows;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.apache.poi.common.usermodel.PictureType;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 public class DocumentHelper {
 
-    public ByteArrayOutputStream createDocument(Integer id) throws URISyntaxException, IOException {
+    public ByteArrayOutputStream createDocument(Integer id) throws Exception {
 
         //get employee by id from database. this is dummy data.
         EmployeeDetails employeeDetails = EmployeeDetails.builder()
@@ -57,7 +53,7 @@ public class DocumentHelper {
         map.put(VariableTypes.EMPLOYEE_ID.getName(), employeeDetails.getEmployeeId().toString());
 
         replaceTextFor(doc, map);
-
+        fillPictureByAltText(doc);
         //get data from database. this is dummy data.
         List<SalaryRecord> salaryRecordList = Arrays.asList(
                 SalaryRecord.builder().month("Jan 2020").amount(String.valueOf(1200.30)).build(),
@@ -79,9 +75,9 @@ public class DocumentHelper {
         return out;
     }
 
-    private void replaceTextFor(XWPFDocument doc, Map<String, String > map) {
+    private void replaceTextFor(XWPFDocument doc, Map<String, String> map) {
 
-        doc.getParagraphs().forEach(p ->  {
+        doc.getParagraphs().forEach(p -> {
             String paragraphText = p.getRuns().stream().map(XWPFRun::text).collect(Collectors.joining());
             System.out.println(doc.getBodyElements().indexOf(p) + "  / " + paragraphText);
         });
@@ -100,7 +96,7 @@ public class DocumentHelper {
         AtomicInteger startIndex = new AtomicInteger(-1);
         AtomicInteger endIndex = new AtomicInteger(-1);
 
-        doc.getParagraphs().forEach(p ->  {
+        doc.getParagraphs().forEach(p -> {
             String paragraphText = p.getRuns().stream().map(i -> i.text()).collect(Collectors.joining());
             System.out.println(doc.getBodyElements().indexOf(p) + "  / " + paragraphText);
         });
@@ -108,17 +104,75 @@ public class DocumentHelper {
         doc.getParagraphs().forEach(p -> p.getRuns().forEach(run -> {
             String text = run.text();
 //            System.out.println(doc.getBodyElements().indexOf(p) + "  / " + text);
-            if("#111".equals(text)) {
-                if(startIndex.get() > -1 )
+            if ("#111".equals(text)) {
+                if (startIndex.get() > -1)
                     endIndex.set(doc.getBodyElements().indexOf(p));
                 else
                     startIndex.set(doc.getBodyElements().indexOf(p));
             }
         }));
 
-        for(int i = endIndex.get(); i >=startIndex.get(); i--) {
+        for (int i = endIndex.get(); i >= startIndex.get(); i--) {
 //            doc.getParagraphs().remove(i);
             doc.removeBodyElement(i);
+        }
+    }
+
+    private void fillPictureByAltText(XWPFDocument doc) throws IOException {
+        doc.getParagraphs().forEach(p -> p.getRuns().forEach(run -> {
+            if (run.text().equals("##imageGoesHere##")) {
+//                ParagraphReplacer r = new ParagraphReplacer("imageGoesHere", "");
+//                r.replace(p);
+                p.setAlignment(ParagraphAlignment.CENTER);
+                run.setText("", 0);
+                try (InputStream in = DocumentHelper.class.getResourceAsStream("/logo-search-grid-1x.png")) {
+                    XWPFPicture img = run.addPicture(in, PictureType.JPEG, "img", (int) (Units.EMU_PER_CENTIMETER * 10), (int) (Units.EMU_PER_CENTIMETER * 10));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (InvalidFormatException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }));
+
+        doc.getParagraphs().forEach(p -> p.getRuns().forEach(run -> {
+            run.getEmbeddedPictures().forEach(ep -> {
+                if (ep.getDescription().equals("altText")) {
+
+                }
+            });
+            if (run.text().equals("##imageGoesHere##")) {
+//                ParagraphReplacer r = new ParagraphReplacer("imageGoesHere", "");
+//                r.replace(p);
+                p.setAlignment(ParagraphAlignment.CENTER);
+                run.setText("", 0);
+                try (InputStream in = DocumentHelper.class.getResourceAsStream("/logo-search-grid-1x.png")) {
+                    XWPFPicture img = run.addPicture(in, PictureType.JPEG, "img", (int) (Units.EMU_PER_CENTIMETER * 10), (int) (Units.EMU_PER_CENTIMETER * 10));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }));
+    }
+
+    public static void deleteParagraph(XWPFParagraph p) {
+        XWPFDocument doc = p.getDocument();
+        int pPos = doc.getPosOfParagraph(p);
+        //doc.getDocument().getBody().removeP(pPos);
+        doc.removeBodyElement(pPos);
+    }
+
+    static void replacePictureData(XWPFPictureData source, byte[] data) {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(data);
+             OutputStream out = source.getPackagePart().getOutputStream();
+        ) {
+            byte[] buffer = new byte[2048];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
