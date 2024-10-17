@@ -43,7 +43,7 @@ public class DocumentHelper {
         Path templatePath = Paths.get(DocumentHelper.class.getClassLoader().getResource(resourcePath).toURI());
         XWPFDocument doc = new XWPFDocument(Files.newInputStream(templatePath));
 
-        HashMap<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put(VariableTypes.FIRST_NAME.getName(), employeeDetails.getFirstName());
         map.put(VariableTypes.LAST_NAME.getName(), employeeDetails.getLastName());
         map.put(VariableTypes.POSITION.getName(), employeeDetails.getPosition());
