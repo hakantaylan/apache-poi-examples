@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.poi.deneme</groupId>
+	<artifactId>poi-deneme</artifactId>
+	<version>1.0</version>
+	<name>poi-deneme</name>
+	<description>POI Word Document Example</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java-version>21</java-version>
+		<log4j2.version>2.24.1</log4j2.version>
+		<maven-compiler-plugin-version>3.13.0</maven-compiler-plugin-version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin-version}</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<target>${java-version}</target>
+					<source>${java-version}</source>
+				</configuration>
+			</plugin>
+<!--			<plugin>-->
+<!--				<artifactId>maven-shade-plugin</artifactId>-->
+<!--				<version>${maven-shade-plugin-version}</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>package</phase>-->
+<!--						<goals>-->
+<!--							<goal>shade</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<transformers>-->
+<!--								&lt;!&ndash; This bit sets the main class for the executable jar as you otherwise &ndash;&gt;-->
+<!--								&lt;!&ndash; would with the assembly plugin &ndash;&gt;-->
+<!--								<transformer-->
+<!--									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+<!--									<manifestEntries>-->
+<!--										<Main-Class>com.poi.deneme.POIWordDocumentMain</Main-Class>-->
+<!--									</manifestEntries>-->
+<!--								</transformer>-->
+<!--								&lt;!&ndash; This bit merges the various GeoTools META-INF/services files &ndash;&gt;-->
+<!--								<transformer-->
+<!--									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />-->
+<!--							</transformers>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.poi</groupId>-->
+<!--			<artifactId>poi-scratchpad</artifactId>-->
+<!--			<version>5.3.0</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>
