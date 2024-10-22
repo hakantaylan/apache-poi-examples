@@ -126,7 +126,7 @@ public class DocumentHelper {
                 p.setAlignment(ParagraphAlignment.CENTER);
                 run.setText("", 0);
                 try (InputStream in = DocumentHelper.class.getResourceAsStream("/logo-search-grid-1x.png")) {
-                    XWPFPicture img = run.addPicture(in, PictureType.JPEG, "img", (int) (Units.EMU_PER_CENTIMETER * 10), (int) (Units.EMU_PER_CENTIMETER * 10));
+                    XWPFPicture img = run.addPicture(in, PictureType.JPEG, "img", (int) (Units.EMU_PER_CENTIMETER * 8), (int) (Units.EMU_PER_CENTIMETER * 8));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (InvalidFormatException e) {
